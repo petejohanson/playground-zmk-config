@@ -57,6 +57,7 @@ jobs:
         run: |
           export cmake_args="-DZMK_CONFIG=${GITHUB_WORKSPACE}/config"
           if [ -z "${{ matrix.shield }}" ]; then export cmake_args="${cmake_args} -DSHIELD=${{ matrix.shield }}"; fi
+          echo "${cmake_args}"
           west build -s zmk/app -b ${{ matrix.board }} -- "${cmake_args}"
       - name: ${{ matrix.board }} ${{ matrix.shield }} DTS File
         if: ${{ always() }}
