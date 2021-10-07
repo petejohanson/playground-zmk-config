@@ -60,7 +60,7 @@ jobs:
           west build -s zmk/app -b ${{ matrix.board }} -- ${cmake_args}
       - name: ${{ matrix.board }} ${{ matrix.shield }} DTS File
         if: ${{ always() }}
-        run: cat -n build/zephyr/nice_nano_v2.dts.pre.tmp
+        run: cat -n build/zephyr/${{ matrix.board }}.pre.tmp
       - name: ${{ matrix.board }}  ${{ matrix.shield }} Kconfig file
         run: cat build/zephyr/.config | grep -v "^#" | grep -v "^$"
       - name: Rename zmk.uf2
