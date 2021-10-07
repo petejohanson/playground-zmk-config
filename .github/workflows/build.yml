@@ -55,7 +55,7 @@ jobs:
         run: west zephyr-export
       - name: West Build (${{ matrix.board }} ${{ matrix.shield }})
         run: |
-          export cmake_args="-DZMK_CONFIG=${GITHUB_WORKSPACE}/config"
+          export cmake_args="-DZMK_CONFIG=\"${GITHUB_WORKSPACE}/config\""
           if [ -n "${{ matrix.shield }}" ]; then export cmake_args="${cmake_args} -DSHIELD=${{ matrix.shield }}"; fi
           echo "${cmake_args}"
           west build -s zmk/app -b ${{ matrix.board }} -- "${cmake_args}"
