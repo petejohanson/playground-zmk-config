@@ -61,12 +61,12 @@ jobs:
       - name: ${{ matrix.board }} ${{ matrix.shield }} DTS File
         if: ${{ always() }}
         run: |
-          if [ -f "build/zephyr/${{ matrix.board }}" ]; then cat -n build/zephyr/${{ matrix.board }}.pre.tmp; fi
+          if [ -f "build/zephyr/${{ matrix.board }}.pre.tmp" ]; then cat -n build/zephyr/${{ matrix.board }}.pre.tmp; fi
           if [ -f "build/zephyr/zephyr.dts" ]; then cat -n build/zephyr/zephyr.dts; fi
       - name: ${{ matrix.board }}  ${{ matrix.shield }} Kconfig file
         run: cat build/zephyr/.config | grep -v "^#" | grep -v "^$"
       - name: Rename zmk.uf2
-        run: cp build/zephyr/zmk.uf2 ${{ matrix.board }}-${{ matrix.shield }}.uf2
+        run: if [ -f "build/zephyr/zmk.uf2" ]; then cp build/zephyr/zmk.uf2 ${{ matrix.board }}-${{ matrix.shield }}.uf2; fi
       - name: Archive (${{ matrix.board }} ${{ matrix.shield }})
         uses: actions/upload-artifact@v2
         with:
