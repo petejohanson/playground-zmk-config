@@ -81,8 +81,8 @@ jobs:
       - name: Rename artifacts
         run: |
           mkdir build/artifacts
-          [ -f build/zephyr/zmk.hex ] && cp build/zephyr/zmk.hex "build/artifacts/${{ steps.variables.outputs.artifact-name }}.hex"
-          [ -f build/zephyr/zmk.uf2 ] && cp build/zephyr/zmk.uf2 "build/artifacts/${{ steps.variables.outputs.artifact-name }}.uf2"
+          if [ -f build/zephyr/zmk.hex ]; then cp build/zephyr/zmk.hex "build/artifacts/${{ steps.variables.outputs.artifact-name }}.hex"; fi
+          if [ -f build/zephyr/zmk.uf2 ]; then cp build/zephyr/zmk.uf2 "build/artifacts/${{ steps.variables.outputs.artifact-name }}.uf2"; fi
       - name: Archive (${{ steps.variables.outputs.display-name }})
         uses: actions/upload-artifact@v2
         with:
