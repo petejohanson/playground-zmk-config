@@ -55,9 +55,9 @@ jobs:
         run: west zephyr-export
       - name: West Build (${{ matrix.board }} ${{ matrix.shield }})
         run: |
-          cmake_args="-DZMK_CONFIG=${GITHUB_WORKSPACE}/config"
-          if [ -z "${{ matrix.shield }}" ]; then cmake_args="${cmake_args} -DSHIELD=${{ matrix.shield }}"; fi
-          west build -s zmk/app -b ${{ matrix.board }} -- ${cmake_args}
+          export cmake_args="-DZMK_CONFIG=${GITHUB_WORKSPACE}/config"
+          if [ -z "${{ matrix.shield }}" ]; then export cmake_args="${cmake_args} -DSHIELD=${{ matrix.shield }}"; fi
+          west build -s zmk/app -b ${{ matrix.board }} -- "${cmake_args}"
       - name: ${{ matrix.board }} ${{ matrix.shield }} DTS File
         if: ${{ always() }}
         run: cat -n build/zephyr/nice_nano_v2.dts.pre.tmp
