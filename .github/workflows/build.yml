@@ -17,6 +17,7 @@ jobs:
         name: Fetch Build Matrix
         run: |
           matrix=$(yaml2json build.yaml | jq -c .)
+          echo $matrix
           echo "::set-output name=matrix::${matrix}"
   build:
     runs-on: ubuntu-latest
