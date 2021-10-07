@@ -3,11 +3,26 @@ on: [push, pull_request, workflow_dispatch]
 name: Build
 
 jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    name: Fetch Build Keyboards
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - id: set-matrix
+        run: |
+          matrix=$(yaml2json build.yaml | jq -c .)
+          echo "::set-output name=matrix::${matrix}"
   build:
     runs-on: ubuntu-latest
     container:
       image: zmkfirmware/zmk-build-arm:2.5
+    needs: matrix
     name: Build
+    strategy:
+      matrix: ${{fromJson(needs.matrix.outputs.matrix)}}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -33,29 +48,20 @@ jobs:
         run: west update
       - name: West Zephyr export
         run: west zephyr-export
-      - name: West Build (A. Dux Left)
-        run: west build -s zmk/app -b nice_nano_v2 -- -DSHIELD=a_dux_left -DZMK_CONFIG="${GITHUB_WORKSPACE}/config"
-      - name: A. Dux DTS File
+      - name: West Build (${{ matrix.board }} ${{ matrix.shield }})
+        run: |
+          cmake_args="-DZMK_CONFIG=${GITHUB_WORKSPACE}/config"
+          if [ -z "${{ matrix.shield }}" ]; then cmake_args="${cmake_args} -DSHIELD=${{ matrix.shield }}"; fi
+          west build -s zmk/app -b ${{ matrix.board }} -- ${cmake_args}
+      - name: ${{ matrix.board }} ${{ matrix.shield }} DTS File
         if: ${{ always() }}
         run: cat -n build/zephyr/nice_nano_v2.dts.pre.tmp
-      - name: A. Dux Left Kconfig file
+      - name: ${{ matrix.board }}  ${{ matrix.shield }} Kconfig file
         run: cat build/zephyr/.config | grep -v "^#" | grep -v "^$"
       - name: Rename zmk.uf2
-        run: cp build/zephyr/zmk.uf2 a_dux_left_nice_nano_v2.uf2
-      - name: Archive (A. Dux Left)
+        run: cp build/zephyr/zmk.uf2 ${{ matrix.board }}-${{ matrix.shield }}.uf2
+      - name: Archive (${{ matrix.board }} ${{ matrix.shield }})
         uses: actions/upload-artifact@v2
         with:
           name: firmware
-          path: a_dux_left_nice_nano_v2.uf2
-      - name: West Build (A. Dux Right)
-        run: west build --pristine -s zmk/app -b nice_nano_v2 -- -DSHIELD=a_dux_right -DZMK_CONFIG="${GITHUB_WORKSPACE}/config"
-
-      - name: A. Dux Right Kconfig file
-        run: cat build/zephyr/.config | grep -v "^#" | grep -v "^$"
-      - name: Rename zmk.uf2
-        run: cp build/zephyr/zmk.uf2 a_dux_right_nice_nano_v2.uf2
-      - name: Archive (A. Dux Right)
-        uses: actions/upload-artifact@v2
-        with:
-          name: firmware
-          path: a_dux_right_nice_nano_v2.uf2
+          path: ${{ matrix.board }}-${{ matrix.shield }}.uf2
